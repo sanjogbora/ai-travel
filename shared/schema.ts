@@ -1,18 +1,107 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-});
+// Travel Planning Schemas
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
+export const groupTypeSchema = z.enum(["friends", "family", "solo"]);
+export type GroupType = z.infer<typeof groupTypeSchema>;
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
+export const destinationSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  country: z.string(),
+  image: z.string(),
+  description: z.string(),
+  popularActivities: z.array(z.string()),
+});
+export type Destination = z.infer<typeof destinationSchema>;
+
+export const hotelSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  destinationId: z.string(),
+  image: z.string(),
+  rating: z.number().min(1).max(5),
+  reviewCount: z.number(),
+  price: z.number(),
+  features: z.array(z.string()),
+  safety: z.number().min(1).max(5),
+  comfort: z.number().min(1).max(5),
+});
+export type Hotel = z.infer<typeof hotelSchema>;
+
+export const flightSchema = z.object({
+  id: z.string(),
+  airline: z.string(),
+  from: z.string(),
+  to: z.string(),
+  departureTime: z.string(),
+  arrivalTime: z.string(),
+  duration: z.string(),
+  price: z.number(),
+  stops: z.number(),
+  comfort: z.number().min(1).max(5),
+});
+export type Flight = z.infer<typeof flightSchema>;
+
+export const activitySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  destinationId: z.string(),
+  category: z.string(),
+  image: z.string(),
+  duration: z.string(),
+  price: z.number(),
+  rating: z.number().min(1).max(5),
+  description: z.string(),
+});
+export type Activity = z.infer<typeof activitySchema>;
+
+export const referenceItemSchema = z.object({
+  id: z.string(),
+  image: z.string(),
+  source: z.enum(["instagram", "tiktok", "pinterest", "youtube"]),
+  title: z.string(),
+  url: z.string(),
+});
+export type ReferenceItem = z.infer<typeof referenceItemSchema>;
+
+export const itineraryActivitySchema = z.object({
+  id: z.string(),
+  activityId: z.string(),
+  day: z.number(),
+  startTime: z.string(),
+  endTime: z.string(),
+  notes: z.string().optional(),
+});
+export type ItineraryActivity = z.infer<typeof itineraryActivitySchema>;
+
+export const itinerarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  destinationId: z.string(),
+  hotelId: z.string(),
+  flightId: z.string(),
+  startDate: z.string(),
+  endDate: z.string(),
+  activities: z.array(itineraryActivitySchema),
+  totalCost: z.number(),
+  pros: z.array(z.string()),
+  cons: z.array(z.string()),
+});
+export type Itinerary = z.infer<typeof itinerarySchema>;
+
+export const tripPlanSchema = z.object({
+  id: z.string(),
+  groupType: groupTypeSchema,
+  budgetMin: z.number(),
+  budgetMax: z.number(),
+  startDate: z.string(),
+  endDate: z.string(),
+  destinationId: z.string(),
+  selectedHotelId: z.string().optional(),
+  selectedFlightId: z.string().optional(),
+  referenceBoard: z.array(referenceItemSchema),
+  itineraries: z.array(itinerarySchema),
+  selectedItineraryId: z.string().optional(),
+});
+export type TripPlan = z.infer<typeof tripPlanSchema>;
