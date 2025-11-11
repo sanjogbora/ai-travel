@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { MainLayout } from "@/components/MainLayout";
 import NotFound from "@/pages/not-found";
+import Welcome from "@/pages/Welcome";
+import JoinTrip from "@/pages/JoinTrip";
 import Home from "@/pages/Home";
 import GroupSelection from "@/pages/GroupSelection";
 import BudgetSelection from "@/pages/BudgetSelection";
@@ -22,8 +24,12 @@ import Flights from "@/pages/Flights";
 function Router() {
   return (
     <Switch>
+      {/* Welcome & Join routes */}
+      <Route path="/" component={Welcome} />
+      <Route path="/join" component={JoinTrip} />
+      
       {/* Onboarding routes - no sidebar */}
-      <Route path="/" component={Home} />
+      <Route path="/home" component={Home} />
       <Route path="/onboarding/group" component={GroupSelection} />
       <Route path="/onboarding/budget" component={BudgetSelection} />
       <Route path="/onboarding/scope" component={TripScopeSelection} />
@@ -31,6 +37,9 @@ function Router() {
       <Route path="/onboarding/destination" component={DestinationSelection} />
       
       {/* Main app routes - with sidebar */}
+      <Route path="/board">
+        {() => <MainLayout><ReferenceBoard /></MainLayout>}
+      </Route>
       <Route path="/reference-board">
         {() => <MainLayout><ReferenceBoard /></MainLayout>}
       </Route>
