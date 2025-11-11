@@ -49,35 +49,7 @@ export default function TravelTinder() {
   const currentHotel = hotels[currentIndex];
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="font-serif text-2xl font-bold text-foreground" data-testid="text-heading">
-              Hotels
-            </h1>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setLocation("/reference-board")}
-                variant="ghost"
-                size="sm"
-                data-testid="button-nav-board"
-              >
-                Travel Board
-              </Button>
-              <Button
-                onClick={() => setLocation("/itinerary-builder")}
-                variant="ghost"
-                size="sm"
-                data-testid="button-nav-itinerary"
-              >
-                Itinerary
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <div className="bg-background">
       <div className="max-w-2xl mx-auto px-6 py-12">
         {currentIndex < hotels.length ? (
           <div className="relative h-[600px]">
