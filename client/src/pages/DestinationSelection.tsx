@@ -34,7 +34,7 @@ export default function DestinationSelection() {
   const handleContinue = () => {
     if (selectedDestination) {
       localStorage.setItem("destinationId", selectedDestination);
-      setLocation("/reference-board");
+      setLocation("/onboarding/invite");
     }
   };
 

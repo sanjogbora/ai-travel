@@ -13,6 +13,7 @@ import BudgetSelection from "@/pages/BudgetSelection";
 import TripScopeSelection from "@/pages/TripScopeSelection";
 import DateSelection from "@/pages/DateSelection";
 import DestinationSelection from "@/pages/DestinationSelection";
+import InviteMembers from "@/pages/InviteMembers";
 import ReferenceBoard from "@/pages/ReferenceBoard";
 import TravelTinder from "@/pages/TravelTinder";
 import ItineraryBuilder from "@/pages/ItineraryBuilder";
@@ -35,6 +36,7 @@ function Router() {
       <Route path="/onboarding/scope" component={TripScopeSelection} />
       <Route path="/onboarding/dates" component={DateSelection} />
       <Route path="/onboarding/destination" component={DestinationSelection} />
+      <Route path="/onboarding/invite" component={InviteMembers} />
       
       {/* Main app routes - with sidebar */}
       <Route path="/board">
