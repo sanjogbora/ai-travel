@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, DollarSign, ArrowRight, Plus, GripVertical, AlertCircle, Users, Home, Undo } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Clock, MapPin, DollarSign, ArrowRight, Plus, GripVertical, AlertCircle, Users, Home, Undo, X, UtensilsCrossed, Camera, Landmark, Bike, ShoppingBag, FileText, Plane } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -35,6 +36,8 @@ interface Activity {
   inTravelBoard?: boolean;
   suggestedTime?: string;
   isRecentChange?: boolean;
+  travelTimeToNext?: string;
+  distanceToNext?: string;
 }
 
 interface DayItinerary {
@@ -75,7 +78,15 @@ const initialItinerary: DayItinerary = {
   ],
 };
 
-function SortableActivity({ activity }: { activity: Activity }) {
+const categoryIcons: Record<string, typeof UtensilsCrossed> = {
+  Food: UtensilsCrossed,
+  Sightseeing: Camera,
+  Culture: Landmark,
+  Activity: Bike,
+  Shopping: ShoppingBag,
+};
+
+function SortableActivity({ activity, onDelete, showTravel }: { activity: Activity; onDelete: (id: string) => void; showTravel?: boolean }) {
   const {
     attributes,
     listeners,
@@ -136,7 +147,11 @@ function SortableActivity({ activity }: { activity: Activity }) {
                 {activity.name}
               </h3>
               <div className="flex flex-wrap items-center gap-2 mt-1">
-                <Badge variant="secondary" className="text-xs" data-testid={`badge-category-${activity.id}`}>
+                <Badge variant="secondary" className="text-xs flex items-center gap-1" data-testid={`badge-category-${activity.id}`}>
+                  {categoryIcons[activity.category] && (() => {
+                    const Icon = categoryIcons[activity.category];
+                    return <Icon className="w-3 h-3" />;
+                  })()}
                   {activity.category}
                 </Badge>
                 {activity.isAiSuggested && (
@@ -165,8 +180,18 @@ function SortableActivity({ activity }: { activity: Activity }) {
                 </div>
               )}
             </div>
-            <div className="text-sm font-semibold text-foreground" data-testid={`text-price-${activity.id}`}>
-              ${activity.price}
+            <div className="flex items-center gap-2">
+              <div className="text-sm font-semibold text-foreground" data-testid={`text-price-${activity.id}`}>
+                ${activity.price}
+              </div>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => onDelete(activity.id)}
+                data-testid={`button-delete-${activity.id}`}
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </div>
@@ -180,6 +205,7 @@ export default function ItineraryBuilder() {
   const [itinerary, setItinerary] = useState<DayItinerary>(initialItinerary);
   const [previousItinerary, setPreviousItinerary] = useState<DayItinerary | null>(null);
   const [showUndoBanner, setShowUndoBanner] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const [, setLocation] = useLocation();
 
   const sensors = useSensors(
@@ -266,42 +292,106 @@ export default function ItineraryBuilder() {
     }
   };
 
+  const handleDelete = (id: string) => {
+    setItinerary((prev) => ({
+      ...prev,
+      [selectedDay]: currentDayActivities.filter((act) => act.id !== id),
+    }));
+  };
+
+  const allDaysTotal = Object.values(itinerary).reduce((sum: number, dayActivities: Activity[]) => {
+    return sum + dayActivities.reduce((daySum: number, act: Activity) => daySum + act.price, 0);
+  }, 0);
+
+  const flightCost = 650; // Mock flight cost
+  const grandTotal = allDaysTotal + flightCost;
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-background sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="font-serif text-2xl font-bold text-foreground" data-testid="text-heading">
-                Build Your Itinerary
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Drag to rearrange, AI suggests activities
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between">
+            <h1 className="font-serif text-2xl font-bold text-foreground" data-testid="text-heading">
+              Itinerary
+            </h1>
+            <div className="flex items-center gap-2">
+              <Dialog open={showSummary} onOpenChange={setShowSummary}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    data-testid="button-view-summary"
+                  >
+                    <FileText className="mr-2 w-4 h-4" />
+                    Trip Summary
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Full Trip Summary</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-6">
+                    {Object.entries(itinerary).map(([day, activities]) => {
+                      const dayTotal = activities.reduce((sum: number, act: Activity) => sum + act.price, 0);
+                      return (
+                        <div key={day} className="border-b pb-4 last:border-b-0">
+                          <h3 className="font-semibold text-lg mb-3">Day {day}</h3>
+                          <div className="space-y-2">
+                            {activities.map((activity: Activity) => (
+                              <div key={activity.id} className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-muted-foreground w-16">{activity.time}</span>
+                                  <span>{activity.name}</span>
+                                  {categoryIcons[activity.category] && (() => {
+                                    const Icon = categoryIcons[activity.category];
+                                    return <Icon className="w-3 h-3 text-muted-foreground" />;
+                                  })()}
+                                </div>
+                                <span className="font-medium">${activity.price}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="flex justify-end mt-2 pt-2 border-t">
+                            <span className="font-semibold">Day {day} Total: ${dayTotal}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div className="pt-4 space-y-2 border-t-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Activities Total</span>
+                        <span className="font-medium">${allDaysTotal}</span>
+                      </div>
+                      <div className="flex justify-between text-sm items-center">
+                        <div className="flex items-center gap-2">
+                          <Plane className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Flight Cost</span>
+                        </div>
+                        <span className="font-medium">${flightCost}</span>
+                      </div>
+                      <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                        <span>Grand Total</span>
+                        <span>${grandTotal}</span>
+                      </div>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Button
                 onClick={() => setLocation("/reference-board")}
-                variant="outline"
+                variant="ghost"
+                size="sm"
                 data-testid="button-nav-board"
               >
-                <Home className="mr-2 w-4 h-4" />
                 Travel Board
               </Button>
               <Button
                 onClick={() => setLocation("/travel-tinder")}
-                variant="outline"
+                variant="ghost"
+                size="sm"
                 data-testid="button-nav-tinder"
               >
-                Choose Stay
-              </Button>
-              <Button
-                onClick={() => setLocation("/chat-editor")}
-                size="lg"
-                data-testid="button-continue"
-              >
-                Refine with AI
-                <ArrowRight className="ml-2 w-5 h-5" />
+                Hotels
               </Button>
             </div>
           </div>
@@ -359,7 +449,7 @@ export default function ItineraryBuilder() {
                 strategy={verticalListSortingStrategy}
               >
                 {currentDayActivities.map((activity) => (
-                  <SortableActivity key={activity.id} activity={activity} />
+                  <SortableActivity key={activity.id} activity={activity} onDelete={handleDelete} />
                 ))}
               </SortableContext>
             </DndContext>

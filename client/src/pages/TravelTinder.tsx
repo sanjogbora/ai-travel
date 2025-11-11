@@ -51,41 +51,29 @@ export default function TravelTinder() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-background sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
             <h1 className="font-serif text-2xl font-bold text-foreground" data-testid="text-heading">
-              Choose Your Stay
+              Hotels
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Swipe right to like, left to pass
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground" data-testid="text-progress">
-              {currentIndex + 1} / {hotels.length}
-            </span>
-            <Button
-              onClick={() => setLocation("/reference-board")}
-              variant="outline"
-              data-testid="button-nav-board"
-            >
-              Travel Board
-            </Button>
-            <Button
-              onClick={() => setLocation("/itinerary-builder")}
-              variant="outline"
-              data-testid="button-nav-itinerary"
-            >
-              View Itinerary
-            </Button>
-            <Button
-              onClick={() => setLocation("/itinerary-builder")}
-              variant="outline"
-              data-testid="button-skip"
-            >
-              Skip
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setLocation("/reference-board")}
+                variant="ghost"
+                size="sm"
+                data-testid="button-nav-board"
+              >
+                Travel Board
+              </Button>
+              <Button
+                onClick={() => setLocation("/itinerary-builder")}
+                variant="ghost"
+                size="sm"
+                data-testid="button-nav-itinerary"
+              >
+                Itinerary
+              </Button>
+            </div>
           </div>
         </div>
       </header>

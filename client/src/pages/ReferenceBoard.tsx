@@ -34,38 +34,29 @@ export default function ReferenceBoard() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-background sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
             <h1 className="font-serif text-2xl font-bold text-foreground" data-testid="text-heading">
-              Travel Inspiration Board
+              Travel Board
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Collect ideas from across the web
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setLocation("/travel-tinder")}
-              variant="outline"
-              data-testid="button-nav-tinder"
-            >
-              Choose Stay
-            </Button>
-            <Button
-              onClick={() => setLocation("/itinerary-builder")}
-              variant="outline"
-              data-testid="button-nav-itinerary"
-            >
-              View Itinerary
-            </Button>
-            <Button
-              onClick={() => setLocation("/travel-tinder")}
-              size="lg"
-              data-testid="button-continue"
-            >
-              Continue to Selection
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setLocation("/travel-tinder")}
+                variant="ghost"
+                size="sm"
+                data-testid="button-nav-tinder"
+              >
+                Hotels
+              </Button>
+              <Button
+                onClick={() => setLocation("/itinerary-builder")}
+                variant="ghost"
+                size="sm"
+                data-testid="button-nav-itinerary"
+              >
+                Itinerary
+              </Button>
+            </div>
           </div>
         </div>
       </header>
