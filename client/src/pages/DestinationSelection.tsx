@@ -44,8 +44,9 @@ export default function DestinationSelection() {
         steps={[
           { number: 1, label: "Group", completed: true, current: false },
           { number: 2, label: "Budget", completed: true, current: false },
-          { number: 3, label: "Dates", completed: true, current: false },
-          { number: 4, label: "Destination", completed: false, current: true },
+          { number: 3, label: "Location", completed: true, current: false },
+          { number: 4, label: "Dates", completed: true, current: false },
+          { number: 5, label: "Destination", completed: false, current: true },
         ]}
       />
       

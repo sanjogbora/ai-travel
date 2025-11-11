@@ -31,14 +31,19 @@ export default function DateSelection() {
     }
   };
 
+  const handleBack = () => {
+    setLocation("/onboarding/scope");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <ProgressStepper
         steps={[
           { number: 1, label: "Group", completed: true, current: false },
           { number: 2, label: "Budget", completed: true, current: false },
-          { number: 3, label: "Dates", completed: false, current: true },
-          { number: 4, label: "Destination", completed: false, current: false },
+          { number: 3, label: "Location", completed: true, current: false },
+          { number: 4, label: "Dates", completed: false, current: true },
+          { number: 5, label: "Destination", completed: false, current: false },
         ]}
       />
       
@@ -93,7 +98,7 @@ export default function DateSelection() {
           <Button
             size="lg"
             variant="outline"
-            onClick={() => setLocation("/onboarding/budget")}
+            onClick={handleBack}
             data-testid="button-back"
           >
             Back

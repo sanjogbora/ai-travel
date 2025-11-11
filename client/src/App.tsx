@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import GroupSelection from "@/pages/GroupSelection";
 import BudgetSelection from "@/pages/BudgetSelection";
+import TripScopeSelection from "@/pages/TripScopeSelection";
 import DateSelection from "@/pages/DateSelection";
 import DestinationSelection from "@/pages/DestinationSelection";
 import ReferenceBoard from "@/pages/ReferenceBoard";
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/onboarding/group" component={GroupSelection} />
       <Route path="/onboarding/budget" component={BudgetSelection} />
+      <Route path="/onboarding/scope" component={TripScopeSelection} />
       <Route path="/onboarding/dates" component={DateSelection} />
       <Route path="/onboarding/destination" component={DestinationSelection} />
       

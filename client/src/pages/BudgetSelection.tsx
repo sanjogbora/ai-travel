@@ -23,7 +23,7 @@ export default function BudgetSelection() {
   const handleContinue = () => {
     localStorage.setItem("budgetMin", budgetRange[0].toString());
     localStorage.setItem("budgetMax", budgetRange[1].toString());
-    setLocation("/onboarding/dates");
+    setLocation("/onboarding/scope");
   };
 
   return (
@@ -32,8 +32,9 @@ export default function BudgetSelection() {
         steps={[
           { number: 1, label: "Group", completed: true, current: false },
           { number: 2, label: "Budget", completed: false, current: true },
-          { number: 3, label: "Dates", completed: false, current: false },
-          { number: 4, label: "Destination", completed: false, current: false },
+          { number: 3, label: "Location", completed: false, current: false },
+          { number: 4, label: "Dates", completed: false, current: false },
+          { number: 5, label: "Destination", completed: false, current: false },
         ]}
       />
       

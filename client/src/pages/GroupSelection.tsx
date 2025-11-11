@@ -29,8 +29,9 @@ export default function GroupSelection() {
         steps={[
           { number: 1, label: "Group", completed: false, current: true },
           { number: 2, label: "Budget", completed: false, current: false },
-          { number: 3, label: "Dates", completed: false, current: false },
-          { number: 4, label: "Destination", completed: false, current: false },
+          { number: 3, label: "Location", completed: false, current: false },
+          { number: 4, label: "Dates", completed: false, current: false },
+          { number: 5, label: "Destination", completed: false, current: false },
         ]}
       />
       
