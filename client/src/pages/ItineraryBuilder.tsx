@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, DollarSign, ArrowRight, Plus, GripVertical, AlertCircle, Users, Home, Undo, X, UtensilsCrossed, Camera, Landmark, Bike, ShoppingBag } from "lucide-react";
+import { Clock, MapPin, DollarSign, ArrowRight, Plus, GripVertical, AlertCircle, Users, Home, Undo, X, UtensilsCrossed, Camera, Landmark, Bike, ShoppingBag, Plane, Hotel, Calendar } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -84,6 +84,70 @@ const categoryIcons: Record<string, typeof UtensilsCrossed> = {
   Activity: Bike,
   Shopping: ShoppingBag,
 };
+
+interface SuggestedBooking {
+  id: string;
+  type: "flight" | "hotel" | "activity";
+  name: string;
+  price: number;
+  priority: "high" | "medium" | "low";
+  bookingWindow?: number;
+}
+
+const suggestedBookings: SuggestedBooking[] = [
+  {
+    id: "flight-paris",
+    type: "flight",
+    name: "Paris CDG Flight",
+    price: 480,
+    priority: "high",
+    bookingWindow: 14,
+  },
+  {
+    id: "hotel-paris-central",
+    type: "hotel",
+    name: "Central Paris Hotel",
+    price: 320,
+    priority: "high",
+    bookingWindow: 10,
+  },
+  {
+    id: "eiffel-tickets",
+    type: "activity",
+    name: "Eiffel Tower Skip-the-Line",
+    price: 30,
+    priority: "high",
+    bookingWindow: 7,
+  },
+  {
+    id: "louvre-tour",
+    type: "activity",
+    name: "Louvre Guided Tour",
+    price: 45,
+    priority: "medium",
+    bookingWindow: 5,
+  },
+  {
+    id: "versailles-tour",
+    type: "activity",
+    name: "Versailles Palace Tour",
+    price: 50,
+    priority: "medium",
+    bookingWindow: 3,
+  },
+];
+
+const bookingTypeIcons = {
+  flight: Plane,
+  hotel: Hotel,
+  activity: Calendar,
+};
+
+const priorityColors = {
+  high: "destructive",
+  medium: "default",
+  low: "secondary",
+} as const;
 
 function SortableActivity({ activity, onDelete, showTravel }: { activity: Activity; onDelete: (id: string) => void; showTravel?: boolean }) {
   const {
@@ -367,6 +431,92 @@ export default function ItineraryBuilder() {
           </div>
 
           <div className="space-y-6">
+            <Card className="p-6">
+              <h3 className="font-semibold text-foreground mb-2" data-testid="text-suggested-bookings-title">Suggested Bookings</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Reserve these to secure availability
+              </p>
+              
+              {(() => {
+                const highUrgency = suggestedBookings.filter(booking => 
+                  booking.priority === "high" || (booking.bookingWindow && booking.bookingWindow >= 7)
+                ).sort((a, b) => (b.bookingWindow || 0) - (a.bookingWindow || 0));
+                
+                const mediumUrgency = suggestedBookings.filter(booking =>
+                  booking.priority === "medium" && booking.bookingWindow && booking.bookingWindow >= 3
+                ).sort((a, b) => (b.bookingWindow || 0) - (a.bookingWindow || 0));
+
+                const renderBookingItem = (booking: SuggestedBooking) => {
+                  const Icon = bookingTypeIcons[booking.type];
+                  return (
+                    <div
+                      key={booking.id}
+                      className="flex items-start gap-3 p-3 rounded-md border border-border hover-elevate"
+                      data-testid={`booking-item-${booking.id}`}
+                    >
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                        <Icon className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h4 className="text-sm font-semibold text-foreground line-clamp-1" data-testid={`text-booking-name-${booking.id}`}>
+                            {booking.name}
+                          </h4>
+                          <Badge
+                            variant={priorityColors[booking.priority]}
+                            className="shrink-0 text-xs"
+                            data-testid={`badge-priority-${booking.id}`}
+                          >
+                            {booking.priority}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground" data-testid={`text-booking-window-${booking.id}`}>
+                            {booking.bookingWindow && `Reserve ${booking.bookingWindow}+ days ahead`}
+                          </span>
+                          <span className="font-semibold text-foreground" data-testid={`text-booking-price-${booking.id}`}>
+                            ${booking.price}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                };
+
+                return (
+                  <div className="space-y-4">
+                    {highUrgency.length > 0 && (
+                      <div data-testid="section-high-urgency">
+                        <h4 className="text-xs font-semibold text-destructive mb-2" data-testid="text-high-urgency-heading">
+                          Book Immediately
+                        </h4>
+                        <div className="space-y-2">
+                          {highUrgency.slice(0, 3).map(renderBookingItem)}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {mediumUrgency.length > 0 && (
+                      <div data-testid="section-medium-urgency">
+                        <h4 className="text-xs font-semibold text-muted-foreground mb-2" data-testid="text-medium-urgency-heading">
+                          Book Soon
+                        </h4>
+                        <div className="space-y-2">
+                          {mediumUrgency.slice(0, 2).map(renderBookingItem)}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {highUrgency.length === 0 && mediumUrgency.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4" data-testid="text-all-set">
+                        All set! No urgent bookings needed.
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
+            </Card>
+
             <Card className="p-6">
               <h3 className="font-semibold text-foreground mb-4" data-testid="text-summary-title">Day {selectedDay} Summary</h3>
               <div className="space-y-3">
