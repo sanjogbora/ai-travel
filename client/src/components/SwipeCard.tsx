@@ -8,11 +8,16 @@ interface SwipeCardProps {
   name: string;
   image: string;
   rating: number;
-  reviewCount: number;
   price: number;
-  features: string[];
   type: "hotel" | "flight" | "activity";
   onSwipe: (id: string, direction: "left" | "right") => void;
+  
+  reviewCount?: number;
+  features?: string[];
+  
+  category?: string;
+  duration?: string;
+  description?: string;
 }
 
 const featureIcons: Record<string, any> = {
@@ -27,11 +32,14 @@ export function SwipeCard({
   name,
   image,
   rating,
-  reviewCount,
   price,
-  features,
   type,
   onSwipe,
+  reviewCount,
+  features,
+  category,
+  duration,
+  description,
 }: SwipeCardProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -115,10 +123,17 @@ export function SwipeCard({
           </Badge>
         </div>
 
-        <div className="p-6">
-          <h3 className="text-2xl font-bold text-foreground mb-2" data-testid={`text-name-${id}`}>{name}</h3>
+        <div className="p-6 space-y-4">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-2xl font-bold text-foreground flex-1" data-testid={`text-name-${id}`}>{name}</h3>
+            {category && type === "activity" && (
+              <Badge variant="secondary" className="shrink-0" data-testid={`badge-category-${id}`}>
+                {category}
+              </Badge>
+            )}
+          </div>
           
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-1" data-testid={`rating-${id}`}>
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
@@ -131,22 +146,37 @@ export function SwipeCard({
                 />
               ))}
             </div>
-            <span className="text-sm text-muted-foreground" data-testid={`text-reviews-${id}`}>
-              ({reviewCount} reviews)
-            </span>
+            {reviewCount && (
+              <span className="text-sm text-muted-foreground" data-testid={`text-reviews-${id}`}>
+                ({reviewCount} reviews)
+              </span>
+            )}
+            {duration && type === "activity" && (
+              <span className="text-sm text-muted-foreground" data-testid={`text-duration-${id}`}>
+                • {duration}
+              </span>
+            )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {features.slice(0, 4).map((feature, idx) => {
-              const Icon = featureIcons[feature] || Wifi;
-              return (
-                <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Icon className="w-4 h-4" />
-                  <span>{feature}</span>
-                </div>
-              );
-            })}
-          </div>
+          {description && type === "activity" && (
+            <p className="text-sm text-muted-foreground line-clamp-2" data-testid={`text-description-${id}`}>
+              {description}
+            </p>
+          )}
+
+          {features && features.length > 0 && (
+            <div className="grid grid-cols-2 gap-3">
+              {features.slice(0, 4).map((feature, idx) => {
+                const Icon = featureIcons[feature] || Wifi;
+                return (
+                  <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Icon className="w-4 h-4" />
+                    <span>{feature}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-4 px-6">

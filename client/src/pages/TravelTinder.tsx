@@ -1,36 +1,19 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { SwipeCard } from "@/components/SwipeCard";
-import { ArrowRight } from "lucide-react";
-import hotelImg from "@assets/generated_images/Luxury_hotel_exterior_cac60dfd.png";
-import ryokanImg from "@assets/generated_images/Japanese_ryokan_room_1e3385bc.png";
-
-const hotels = [
-  {
-    id: "hotel-1",
-    name: "Luxury Beach Resort",
-    image: hotelImg,
-    rating: 4.8,
-    reviewCount: 1240,
-    price: 320,
-    features: ["Free WiFi", "Breakfast", "Pool", "Central Location"],
-  },
-  {
-    id: "hotel-2",
-    name: "Traditional Ryokan",
-    image: ryokanImg,
-    rating: 4.9,
-    reviewCount: 856,
-    price: 280,
-    features: ["Free WiFi", "Hot Springs", "High Safety", "Breakfast"],
-  },
-];
+import { ArrowRight, Loader2 } from "lucide-react";
+import type { Activity } from "@shared/schema";
 
 export default function TravelTinder() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [liked, setLiked] = useState<string[]>([]);
   const [, setLocation] = useLocation();
+
+  const { data: activities, isLoading } = useQuery<Activity[]>({
+    queryKey: ["/api/activities"],
+  });
 
   const handleSwipe = (id: string, direction: "left" | "right") => {
     if (direction === "right") {
@@ -38,7 +21,7 @@ export default function TravelTinder() {
     }
     
     setTimeout(() => {
-      if (currentIndex < hotels.length - 1) {
+      if (activities && currentIndex < activities.length - 1) {
         setCurrentIndex(currentIndex + 1);
       } else {
         setLocation("/itinerary-builder");
@@ -46,17 +29,40 @@ export default function TravelTinder() {
     }, 300);
   };
 
-  const currentHotel = hotels[currentIndex];
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" data-testid="loader-activities" />
+      </div>
+    );
+  }
+
+  if (!activities || activities.length === 0) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-muted-foreground">No activities available</p>
+      </div>
+    );
+  }
+
+  const currentActivity = activities[currentIndex];
 
   return (
     <div className="bg-background">
       <div className="max-w-2xl mx-auto px-6 py-12">
-        {currentIndex < hotels.length ? (
-          <div className="relative h-[600px]">
+        {currentIndex < activities.length ? (
+          <div className="relative h-[650px]">
             <SwipeCard
-              key={currentHotel.id}
-              {...currentHotel}
-              type="hotel"
+              key={currentActivity.id}
+              id={currentActivity.id}
+              name={currentActivity.name}
+              image={currentActivity.image}
+              rating={currentActivity.rating}
+              price={currentActivity.price}
+              type="activity"
+              category={currentActivity.category}
+              duration={currentActivity.duration}
+              description={currentActivity.description}
               onSwipe={handleSwipe}
             />
           </div>
@@ -64,7 +70,7 @@ export default function TravelTinder() {
           <div className="text-center py-20">
             <h2 className="text-3xl font-bold text-foreground mb-4" data-testid="text-complete">All done!</h2>
             <p className="text-muted-foreground mb-6" data-testid="text-liked-count">
-              You liked {liked.length} {liked.length === 1 ? "option" : "options"}
+              You liked {liked.length} {liked.length === 1 ? "activity" : "activities"}
             </p>
             <Button onClick={() => setLocation("/itinerary-builder")} size="lg" data-testid="button-continue">
               Build Your Itinerary
