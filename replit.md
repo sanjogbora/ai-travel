@@ -69,10 +69,12 @@ Preferred communication style: Simple, everyday language.
 - Shared TypeScript types derived from Zod schemas using `z.infer`
 
 **Data Models**
-- `Destination`: Travel destinations with metadata (name, country, image, popular activities)
+- `TripScope`: Enum for domestic (within India) vs international travel
+- `Destination`: Travel destinations with metadata (name, country, image, popular activities, optional scope for filtering)
 - `Hotel`: Accommodation options with ratings, pricing, features, and safety scores
-- `Flight`: Flight information with airline, timing, duration, stops, and comfort ratings
-- `Activity`: Things to do with categories, pricing, and destination linkage
+- `Flight`: Flight information with airline, timing, duration, stops, comfort ratings, and optional comfort/cost scores (0-100) for slider-based filtering, plus optional layover details
+- `Activity`: Things to do with categories, pricing, description, and optional fields for tags, priority (low/medium/high), booking window (days ahead), and review count
+- `ActivityPriority`: Enum for booking urgency (low, medium, high)
 - `ReferenceItem`: User-saved inspiration from external sources (Instagram, TikTok, Pinterest, YouTube)
 - `Itinerary`: Daily activity schedules with timing and ordering
 - `TripPlan`: Complete trip configuration including group type, budget, dates, and itinerary

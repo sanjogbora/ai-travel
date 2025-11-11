@@ -5,6 +5,9 @@ import { z } from "zod";
 export const groupTypeSchema = z.enum(["friends", "family", "solo"]);
 export type GroupType = z.infer<typeof groupTypeSchema>;
 
+export const tripScopeSchema = z.enum(["domestic", "international"]);
+export type TripScope = z.infer<typeof tripScopeSchema>;
+
 export const destinationSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -12,6 +15,7 @@ export const destinationSchema = z.object({
   image: z.string(),
   description: z.string(),
   popularActivities: z.array(z.string()),
+  scope: tripScopeSchema.optional(),
 });
 export type Destination = z.infer<typeof destinationSchema>;
 
@@ -29,6 +33,11 @@ export const hotelSchema = z.object({
 });
 export type Hotel = z.infer<typeof hotelSchema>;
 
+export const layoverSchema = z.object({
+  airport: z.string(),
+  duration: z.string(),
+});
+
 export const flightSchema = z.object({
   id: z.string(),
   airline: z.string(),
@@ -40,8 +49,14 @@ export const flightSchema = z.object({
   price: z.number(),
   stops: z.number(),
   comfort: z.number().min(1).max(5),
+  comfortScore: z.number().int().min(0).max(100).optional(),
+  costScore: z.number().int().min(0).max(100).optional(),
+  layoverDetails: z.array(layoverSchema).optional(),
 });
 export type Flight = z.infer<typeof flightSchema>;
+export type Layover = z.infer<typeof layoverSchema>;
+
+export const activityPrioritySchema = z.enum(["low", "medium", "high"]);
 
 export const activitySchema = z.object({
   id: z.string(),
@@ -53,8 +68,13 @@ export const activitySchema = z.object({
   price: z.number(),
   rating: z.number().min(1).max(5),
   description: z.string(),
+  reviewCount: z.number().optional(),
+  tags: z.array(z.string()).optional(),
+  priority: activityPrioritySchema.optional(),
+  bookingWindow: z.number().optional(),
 });
 export type Activity = z.infer<typeof activitySchema>;
+export type ActivityPriority = z.infer<typeof activityPrioritySchema>;
 
 export const referenceItemSchema = z.object({
   id: z.string(),
@@ -93,6 +113,7 @@ export type Itinerary = z.infer<typeof itinerarySchema>;
 export const tripPlanSchema = z.object({
   id: z.string(),
   groupType: groupTypeSchema,
+  tripScope: tripScopeSchema.optional(),
   budgetMin: z.number(),
   budgetMax: z.number(),
   startDate: z.string(),
