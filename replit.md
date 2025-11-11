@@ -23,7 +23,7 @@ Preferred communication style: Simple, everyday language.
 - shadcn/ui with Radix UI primitives for accessible, customizable components
 - Tailwind CSS for utility-first styling with a custom design system
 - CSS variables for theming support (light/dark modes)
-- Custom font configuration: Inter for UI/body text, Playfair Display for display headings
+- Custom font configuration: Inter for UI/body text, Red Hat Display for display headings
 
 **State Management & Data Fetching**
 - TanStack Query (React Query) for server state management, caching, and synchronization
