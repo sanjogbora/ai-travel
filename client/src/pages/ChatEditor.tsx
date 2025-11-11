@@ -71,11 +71,14 @@ export default function ChatEditor() {
             </p>
           </div>
           <Button
-            onClick={() => setLocation("/comparison")}
+            onClick={() => {
+              sessionStorage.setItem('fromChatEditor', 'true');
+              setLocation("/itinerary-builder");
+            }}
             size="lg"
             data-testid="button-continue"
           >
-            View Options
+            Back to Itinerary
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </div>
@@ -163,10 +166,13 @@ export default function ChatEditor() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setLocation("/comparison")}
+              onClick={() => {
+                sessionStorage.setItem('fromChatEditor', 'true');
+                setLocation("/itinerary-builder");
+              }}
               data-testid="button-finish-chat"
             >
-              Done Chatting - View Options
+              Apply Changes & Return to Itinerary
             </Button>
           </div>
         </div>

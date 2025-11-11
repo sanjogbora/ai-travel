@@ -43,14 +43,30 @@ export default function ReferenceBoard() {
               Collect ideas from across the web
             </p>
           </div>
-          <Button
-            onClick={() => setLocation("/travel-tinder")}
-            size="lg"
-            data-testid="button-continue"
-          >
-            Continue to Selection
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setLocation("/travel-tinder")}
+              variant="outline"
+              data-testid="button-nav-tinder"
+            >
+              Choose Stay
+            </Button>
+            <Button
+              onClick={() => setLocation("/itinerary-builder")}
+              variant="outline"
+              data-testid="button-nav-itinerary"
+            >
+              View Itinerary
+            </Button>
+            <Button
+              onClick={() => setLocation("/travel-tinder")}
+              size="lg"
+              data-testid="button-continue"
+            >
+              Continue to Selection
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </header>
 

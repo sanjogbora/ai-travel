@@ -37,19 +37,19 @@ export function SwipeCard({
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleStart = (clientX: number, clientY: number) => {
     setIsDragging(true);
-    setStartPos({ x: e.clientX, y: e.clientY });
+    setStartPos({ x: clientX, y: clientY });
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMove = (clientX: number, clientY: number) => {
     if (!isDragging) return;
-    const deltaX = e.clientX - startPos.x;
-    const deltaY = e.clientY - startPos.y;
+    const deltaX = clientX - startPos.x;
+    const deltaY = clientY - startPos.y;
     setOffset({ x: deltaX, y: deltaY });
   };
 
-  const handleMouseUp = () => {
+  const handleEnd = () => {
     if (!isDragging) return;
     setIsDragging(false);
     
@@ -58,6 +58,24 @@ export function SwipeCard({
     }
     
     setOffset({ x: 0, y: 0 });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    handleStart(e.clientX, e.clientY);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    handleMove(e.clientX, e.clientY);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    handleStart(touch.clientX, touch.clientY);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    handleMove(touch.clientX, touch.clientY);
   };
 
   const handleSwipeButton = (direction: "left" | "right") => {
@@ -77,8 +95,11 @@ export function SwipeCard({
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
+      onMouseUp={handleEnd}
+      onMouseLeave={handleEnd}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleEnd}
       data-testid={`swipe-card-${id}`}
     >
       <div className="bg-card border border-card-border rounded-xl overflow-hidden h-full shadow-xl">

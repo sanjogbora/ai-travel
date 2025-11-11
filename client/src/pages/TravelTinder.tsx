@@ -60,10 +60,24 @@ export default function TravelTinder() {
               Swipe right to like, left to pass
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground" data-testid="text-progress">
               {currentIndex + 1} / {hotels.length}
             </span>
+            <Button
+              onClick={() => setLocation("/reference-board")}
+              variant="outline"
+              data-testid="button-nav-board"
+            >
+              Travel Board
+            </Button>
+            <Button
+              onClick={() => setLocation("/itinerary-builder")}
+              variant="outline"
+              data-testid="button-nav-itinerary"
+            >
+              View Itinerary
+            </Button>
             <Button
               onClick={() => setLocation("/itinerary-builder")}
               variant="outline"
