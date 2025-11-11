@@ -5,7 +5,10 @@ import type {
   Activity, 
   ReferenceItem,
   Itinerary,
-  TripPlan 
+  TripPlan,
+  TripMember,
+  Vote,
+  Comment
 } from "@shared/schema";
 
 const destinations: Destination[] = [
@@ -256,6 +259,92 @@ const sampleItineraries: Itinerary[] = [
   },
 ];
 
+const tripMembers: TripMember[] = [
+  {
+    id: "member-1",
+    tripId: "trip-1",
+    name: "You",
+    avatar: "/assets/avatars/user-1.png",
+    role: "organizer",
+    isOnline: true,
+    currentPage: "itinerary",
+    joinedAt: new Date().toISOString(),
+  },
+  {
+    id: "member-2",
+    tripId: "trip-1",
+    name: "Sarah Chen",
+    email: "sarah@example.com",
+    avatar: "/assets/avatars/user-2.png",
+    role: "co-planner",
+    isOnline: true,
+    currentPage: "activities",
+    joinedAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+  {
+    id: "member-3",
+    tripId: "trip-1",
+    name: "Mike Johnson",
+    email: "mike@example.com",
+    avatar: "/assets/avatars/user-3.png",
+    role: "co-planner",
+    isOnline: false,
+    joinedAt: new Date(Date.now() - 172800000).toISOString(),
+  },
+  {
+    id: "member-4",
+    tripId: "trip-1",
+    name: "Emma Wilson",
+    email: "emma@example.com",
+    avatar: "/assets/avatars/user-4.png",
+    role: "viewer",
+    isOnline: true,
+    currentPage: "flights",
+    joinedAt: new Date(Date.now() - 259200000).toISOString(),
+  },
+];
+
+const votes: Vote[] = [
+  { id: "vote-1", tripId: "trip-1", activityId: "act-1", memberId: "member-1", voteType: "love", createdAt: new Date().toISOString() },
+  { id: "vote-2", tripId: "trip-1", activityId: "act-1", memberId: "member-2", voteType: "love", createdAt: new Date().toISOString() },
+  { id: "vote-3", tripId: "trip-1", activityId: "act-1", memberId: "member-3", voteType: "maybe", createdAt: new Date().toISOString() },
+  { id: "vote-4", tripId: "trip-1", activityId: "act-2", memberId: "member-1", voteType: "love", createdAt: new Date().toISOString() },
+  { id: "vote-5", tripId: "trip-1", activityId: "act-2", memberId: "member-2", voteType: "love", createdAt: new Date().toISOString() },
+  { id: "vote-6", tripId: "trip-1", activityId: "act-2", memberId: "member-3", voteType: "love", createdAt: new Date().toISOString() },
+  { id: "vote-7", tripId: "trip-1", activityId: "act-2", memberId: "member-4", voteType: "love", createdAt: new Date().toISOString() },
+  { id: "vote-8", tripId: "trip-1", activityId: "act-3", memberId: "member-1", voteType: "skip", createdAt: new Date().toISOString() },
+  { id: "vote-9", tripId: "trip-1", activityId: "act-4", memberId: "member-2", voteType: "love", createdAt: new Date().toISOString() },
+  { id: "vote-10", tripId: "trip-1", activityId: "act-5", memberId: "member-1", voteType: "maybe", createdAt: new Date().toISOString() },
+];
+
+const comments: Comment[] = [
+  {
+    id: "comment-1",
+    tripId: "trip-1",
+    activityId: "act-1",
+    memberId: "member-2",
+    content: "This looks amazing! We should definitely go early to avoid crowds.",
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+  },
+  {
+    id: "comment-2",
+    tripId: "trip-1",
+    activityId: "act-1",
+    memberId: "member-1",
+    content: "Great idea! I'll book tickets for 9am opening.",
+    createdAt: new Date(Date.now() - 1800000).toISOString(),
+    parentId: "comment-1",
+  },
+  {
+    id: "comment-3",
+    tripId: "trip-1",
+    activityId: "act-2",
+    memberId: "member-3",
+    content: "Can we extend this? 2 hours might not be enough to see everything.",
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+  },
+];
+
 export interface IStorage {
   getDestinations(): Promise<Destination[]>;
   getDestination(id: string): Promise<Destination | undefined>;
@@ -265,6 +354,9 @@ export interface IStorage {
   getItineraries(): Promise<Itinerary[]>;
   getItinerary(id: string): Promise<Itinerary | undefined>;
   getActivity(id: string): Promise<Activity | undefined>;
+  getTripMembers(tripId?: string): Promise<TripMember[]>;
+  getVotes(tripId?: string, activityId?: string): Promise<Vote[]>;
+  getComments(tripId?: string, activityId?: string): Promise<Comment[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -306,6 +398,35 @@ export class MemStorage implements IStorage {
 
   async getActivity(id: string): Promise<Activity | undefined> {
     return activities.find(a => a.id === id);
+  }
+
+  async getTripMembers(tripId?: string): Promise<TripMember[]> {
+    if (tripId) {
+      return tripMembers.filter(m => m.tripId === tripId);
+    }
+    return tripMembers;
+  }
+
+  async getVotes(tripId?: string, activityId?: string): Promise<Vote[]> {
+    let filtered = votes;
+    if (tripId) {
+      filtered = filtered.filter(v => v.tripId === tripId);
+    }
+    if (activityId) {
+      filtered = filtered.filter(v => v.activityId === activityId);
+    }
+    return filtered;
+  }
+
+  async getComments(tripId?: string, activityId?: string): Promise<Comment[]> {
+    let filtered = comments;
+    if (tripId) {
+      filtered = filtered.filter(c => c.tripId === tripId);
+    }
+    if (activityId) {
+      filtered = filtered.filter(c => c.activityId === activityId);
+    }
+    return filtered;
   }
 }
 

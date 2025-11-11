@@ -87,6 +87,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/trips/:tripId/members", async (req, res) => {
+    try {
+      const members = await storage.getTripMembers(req.params.tripId);
+      res.json(members);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch trip members" });
+    }
+  });
+
+  app.get("/api/trips/:tripId/votes", async (req, res) => {
+    try {
+      const activityId = req.query.activityId as string | undefined;
+      const votes = await storage.getVotes(req.params.tripId, activityId);
+      res.json(votes);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch votes" });
+    }
+  });
+
+  app.get("/api/trips/:tripId/comments", async (req, res) => {
+    try {
+      const activityId = req.query.activityId as string | undefined;
+      const comments = await storage.getComments(req.params.tripId, activityId);
+      res.json(comments);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch comments" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

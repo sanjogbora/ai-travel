@@ -110,8 +110,50 @@ export const itinerarySchema = z.object({
 });
 export type Itinerary = z.infer<typeof itinerarySchema>;
 
+export const memberRoleSchema = z.enum(["organizer", "co-planner", "viewer"]);
+export type MemberRole = z.infer<typeof memberRoleSchema>;
+
+export const tripMemberSchema = z.object({
+  id: z.string(),
+  tripId: z.string(),
+  name: z.string(),
+  email: z.string().email().optional(),
+  avatar: z.string().optional(),
+  role: memberRoleSchema,
+  isOnline: z.boolean().default(false),
+  currentPage: z.string().optional(),
+  joinedAt: z.string(),
+});
+export type TripMember = z.infer<typeof tripMemberSchema>;
+
+export const voteTypeSchema = z.enum(["love", "maybe", "skip"]);
+export type VoteType = z.infer<typeof voteTypeSchema>;
+
+export const voteSchema = z.object({
+  id: z.string(),
+  tripId: z.string(),
+  activityId: z.string(),
+  memberId: z.string(),
+  voteType: voteTypeSchema,
+  createdAt: z.string(),
+});
+export type Vote = z.infer<typeof voteSchema>;
+
+export const commentSchema = z.object({
+  id: z.string(),
+  tripId: z.string(),
+  activityId: z.string(),
+  memberId: z.string(),
+  content: z.string(),
+  createdAt: z.string(),
+  parentId: z.string().optional(),
+});
+export type Comment = z.infer<typeof commentSchema>;
+
 export const tripPlanSchema = z.object({
   id: z.string(),
+  name: z.string().optional(),
+  createdBy: z.string().optional(),
   groupType: groupTypeSchema,
   tripScope: tripScopeSchema.optional(),
   budgetMin: z.number(),
@@ -124,5 +166,7 @@ export const tripPlanSchema = z.object({
   referenceBoard: z.array(referenceItemSchema),
   itineraries: z.array(itinerarySchema),
   selectedItineraryId: z.string().optional(),
+  inviteCode: z.string().optional(),
+  createdAt: z.string().optional(),
 });
 export type TripPlan = z.infer<typeof tripPlanSchema>;
