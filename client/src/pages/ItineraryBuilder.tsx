@@ -3,7 +3,9 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, DollarSign, ArrowRight, Plus, GripVertical, AlertCircle, Users, Home, Undo, X, UtensilsCrossed, Camera, Landmark, Bike, ShoppingBag, Plane, Hotel, Calendar } from "lucide-react";
+import { ItineraryActivityCard } from "@/components/ItineraryActivityCard";
+import { PackingList } from "@/components/PackingList";
+import { Clock, MapPin, DollarSign, ArrowRight, Plus, GripVertical, AlertCircle, Users, Home, Undo, X, UtensilsCrossed, Camera, Landmark, Bike, ShoppingBag, Plane, Hotel, Calendar, Package } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -570,6 +572,11 @@ export default function ItineraryBuilder() {
             </Card>
           </div>
         </div>
+      </div>
+
+      {/* Packing List Section */}
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <PackingList />
       </div>
     </div>
   );

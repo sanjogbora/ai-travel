@@ -139,16 +139,142 @@ export const voteSchema = z.object({
 });
 export type Vote = z.infer<typeof voteSchema>;
 
+export const targetTypeSchema = z.enum(["activity", "hotel", "flight", "itinerary"]);
+export type TargetType = z.infer<typeof targetTypeSchema>;
+
 export const commentSchema = z.object({
   id: z.string(),
   tripId: z.string(),
-  activityId: z.string(),
+  targetType: targetTypeSchema,
+  targetId: z.string(),
   memberId: z.string(),
+  memberName: z.string(),
+  memberAvatar: z.string().optional(),
   content: z.string(),
   createdAt: z.string(),
   parentId: z.string().optional(),
+  replies: z.array(z.lazy(() => commentSchema)).optional(),
 });
 export type Comment = z.infer<typeof commentSchema>;
+
+export const activityFeedItemTypeSchema = z.enum(["vote", "comment", "itinerary", "task", "member", "poll"]);
+export type ActivityFeedItemType = z.infer<typeof activityFeedItemTypeSchema>;
+
+export const activityFeedItemSchema = z.object({
+  id: z.string(),
+  tripId: z.string(),
+  type: activityFeedItemTypeSchema,
+  memberId: z.string(),
+  memberName: z.string(),
+  memberAvatar: z.string().optional(),
+  action: z.string(),
+  targetName: z.string().optional(),
+  timestamp: z.string(),
+  metadata: z.record(z.any()).optional(),
+});
+export type ActivityFeedItem = z.infer<typeof activityFeedItemSchema>;
+
+export const pollOptionSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  votes: z.array(z.string()), // member IDs
+});
+export type PollOption = z.infer<typeof pollOptionSchema>;
+
+export const pollSchema = z.object({
+  id: z.string(),
+  tripId: z.string(),
+  question: z.string(),
+  options: z.array(pollOptionSchema),
+  createdBy: z.string(),
+  createdAt: z.string(),
+  expiresAt: z.string().optional(),
+});
+export type Poll = z.infer<typeof pollSchema>;
+
+export const taskStatusSchema = z.enum(["pending", "in_progress", "completed"]);
+export type TaskStatus = z.infer<typeof taskStatusSchema>;
+
+export const taskSchema = z.object({
+  id: z.string(),
+  tripId: z.string(),
+  title: z.string(),
+  description: z.string().optional(),
+  assignedTo: z.array(z.string()), // member IDs
+  createdBy: z.string(),
+  status: taskStatusSchema,
+  dueDate: z.string().optional(),
+  completedAt: z.string().optional(),
+  completedBy: z.string().optional(),
+  createdAt: z.string(),
+});
+export type Task = z.infer<typeof taskSchema>;
+
+export const packingItemCategorySchema = z.enum([
+  "clothing",
+  "toiletries",
+  "electronics",
+  "documents",
+  "medications",
+  "accessories",
+  "other"
+]);
+export type PackingItemCategory = z.infer<typeof packingItemCategorySchema>;
+
+export const packingItemSchema = z.object({
+  id: z.string(),
+  tripId: z.string(),
+  category: packingItemCategorySchema,
+  name: z.string(),
+  assignedTo: z.string().optional(), // member ID
+  isPacked: z.boolean().default(false),
+  packedBy: z.string().optional(),
+  packedAt: z.string().optional(),
+  addedBy: z.string(),
+  createdAt: z.string(),
+});
+export type PackingItem = z.infer<typeof packingItemSchema>;
+
+export const expenseItemSchema = z.object({
+  id: z.string(),
+  tripId: z.string(),
+  name: z.string(),
+  amount: z.number(),
+  category: z.enum(["flights", "hotels", "activities", "food", "transportation", "other"]),
+  assignedTo: z.string().optional(), // member ID who will pay
+  isPaid: z.boolean().default(false),
+  paidBy: z.string().optional(),
+  paidAt: z.string().optional(),
+  splitAmong: z.array(z.string()).optional(), // member IDs to split cost
+  createdAt: z.string(),
+});
+export type ExpenseItem = z.infer<typeof expenseItemSchema>;
+
+export const tripVersionSchema = z.object({
+  id: z.string(),
+  tripId: z.string(),
+  snapshot: z.record(z.any()), // Partial trip data
+  createdBy: z.string(),
+  createdAt: z.string(),
+  changeDescription: z.string(),
+});
+export type TripVersion = z.infer<typeof tripVersionSchema>;
+
+export const voteSummarySchema = z.object({
+  love: z.number().default(0),
+  maybe: z.number().default(0),
+  skip: z.number().default(0),
+  userVote: voteTypeSchema.optional(),
+  consensusType: voteTypeSchema.optional(),
+});
+export type VoteSummary = z.infer<typeof voteSummarySchema>;
+
+export const enhancedItineraryActivitySchema = itineraryActivitySchema.extend({
+  addedBy: z.string().optional(), // member ID
+  votes: voteSummarySchema.optional(),
+  commentCount: z.number().default(0),
+});
+export type EnhancedItineraryActivity = z.infer<typeof enhancedItineraryActivitySchema>;
 
 export const tripPlanSchema = z.object({
   id: z.string(),
@@ -168,5 +294,13 @@ export const tripPlanSchema = z.object({
   selectedItineraryId: z.string().optional(),
   inviteCode: z.string().optional(),
   createdAt: z.string().optional(),
+  // Collaboration fields
+  members: z.array(tripMemberSchema).optional(),
+  activityFeed: z.array(activityFeedItemSchema).optional(),
+  polls: z.array(pollSchema).optional(),
+  tasks: z.array(taskSchema).optional(),
+  packingList: z.array(packingItemSchema).optional(),
+  expenses: z.array(expenseItemSchema).optional(),
+  versions: z.array(tripVersionSchema).optional(),
 });
 export type TripPlan = z.infer<typeof tripPlanSchema>;

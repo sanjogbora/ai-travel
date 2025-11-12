@@ -4,6 +4,7 @@ import { ProgressStepper } from "@/components/ProgressStepper";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
+import { AICalendarInsight } from "@/components/AICalendarInsight";
 import { addDays, format } from "date-fns";
 import type { DateRange } from "react-day-picker";
 
@@ -55,6 +56,21 @@ export default function DateSelection() {
           <p className="text-lg text-muted-foreground">
             Select your travel dates
           </p>
+        </div>
+
+        {/* AI Calendar Insight */}
+        <div className="mb-8">
+          <AICalendarInsight
+            selectedDates={
+              dateRange?.from && dateRange?.to
+                ? {
+                    start: format(dateRange.from, "yyyy-MM-dd"),
+                    end: format(dateRange.to, "yyyy-MM-dd"),
+                  }
+                : undefined
+            }
+            memberCount={4}
+          />
         </div>
 
         <div className="bg-card border border-card-border rounded-lg p-8 mb-8">

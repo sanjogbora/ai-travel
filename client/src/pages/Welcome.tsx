@@ -1,11 +1,42 @@
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Users, Sparkles, ThumbsUp, Calendar, Heart, MessageCircle, CheckCircle } from "lucide-react";
+import { VisualTour } from "@/components/VisualTour";
 import parisImg from "@assets/generated_images/Paris_sunset_aerial_view_25faf353.png";
 
 export default function Welcome() {
   const [, setLocation] = useLocation();
+  const [showTour, setShowTour] = useState(false);
+
+  useEffect(() => {
+    // Check if user has seen the tour before
+    const hasSeenTour = localStorage.getItem("hasSeenTour");
+    if (!hasSeenTour) {
+      // Show tour after a brief delay for better UX
+      const timer = setTimeout(() => setShowTour(true), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleTourComplete = () => {
+    localStorage.setItem("hasSeenTour", "true");
+    setShowTour(false);
+  };
+
+  const handleTourSkip = () => {
+    localStorage.setItem("hasSeenTour", "true");
+    setShowTour(false);
+  };
+
+  const handleCreateTrip = () => {
+    setLocation("/onboarding/group");
+  };
+
+  const handleShowTour = () => {
+    setShowTour(true);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -34,10 +65,10 @@ export default function Welcome() {
             Travel planning should be collaborative and fun.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-16">
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <Button
               size="lg"
-              onClick={() => setLocation("/onboarding/group")}
+              onClick={handleCreateTrip}
               className="text-lg px-8 py-6 h-auto"
               data-testid="button-create-trip"
             >
@@ -55,6 +86,14 @@ export default function Welcome() {
               Join a Trip
             </Button>
           </div>
+
+          <button
+            onClick={handleShowTour}
+            className="text-white/80 hover:text-white text-sm mb-16 underline underline-offset-4"
+            data-testid="button-show-tour"
+          >
+            Take a quick tour
+          </button>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full">
             <Card className="p-6 bg-white/10 backdrop-blur-md border-white/20" data-testid="feature-collaborate">
@@ -148,6 +187,13 @@ export default function Welcome() {
           </div>
         </div>
       </div>
+
+      {/* Visual Tour Modal */}
+      <VisualTour
+        isOpen={showTour}
+        onComplete={handleTourComplete}
+        onSkip={handleTourSkip}
+      />
     </div>
   );
 }

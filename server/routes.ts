@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { wsManager } from "./websocket";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/destinations", async (_req, res) => {
@@ -96,6 +97,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Voting endpoints
   app.get("/api/trips/:tripId/votes", async (req, res) => {
     try {
       const activityId = req.query.activityId as string | undefined;
@@ -106,16 +108,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/trips/:tripId/votes", async (req, res) => {
+    try {
+      const { activityId, memberId, voteType } = req.body;
+      const vote = await storage.createVote({
+        tripId: req.params.tripId,
+        activityId,
+        memberId,
+        voteType,
+      });
+      res.json(vote);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create vote" });
+    }
+  });
+
+  app.get("/api/trips/:tripId/activities/:activityId/votes", async (req, res) => {
+    try {
+      const votes = await storage.getVotes(req.params.tripId, req.params.activityId);
+      const summary = await storage.getVoteSummary(req.params.tripId, req.params.activityId);
+      res.json({ votes, summary });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch activity votes" });
+    }
+  });
+
+  // Comment endpoints
   app.get("/api/trips/:tripId/comments", async (req, res) => {
     try {
-      const activityId = req.query.activityId as string | undefined;
-      const comments = await storage.getComments(req.params.tripId, activityId);
+      const targetId = req.query.targetId as string | undefined;
+      const comments = await storage.getComments(req.params.tripId, targetId);
       res.json(comments);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch comments" });
     }
   });
 
+  app.post("/api/trips/:tripId/comments", async (req, res) => {
+    try {
+      const comment = await storage.createComment({
+        tripId: req.params.tripId,
+        ...req.body,
+      });
+      res.json(comment);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create comment" });
+    }
+  });
+
   const httpServer = createServer(app);
+  
+  // Initialize WebSocket server (disabled for demo - using mock data)
+  // wsManager.initialize(httpServer);
+  
   return httpServer;
 }

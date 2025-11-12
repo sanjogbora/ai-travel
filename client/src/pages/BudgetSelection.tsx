@@ -4,6 +4,7 @@ import { ProgressStepper } from "@/components/ProgressStepper";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { AIBudgetInsight } from "@/components/AIBudgetInsight";
 import { DollarSign } from "lucide-react";
 
 const budgetPresets = [
@@ -46,6 +47,15 @@ export default function BudgetSelection() {
           <p className="text-lg text-muted-foreground">
             Help us find the perfect options for you
           </p>
+        </div>
+
+        {/* AI Budget Insight */}
+        <div className="mb-8">
+          <AIBudgetInsight
+            destination="Paris"
+            memberCount={4}
+            budgetRange={{ min: budgetRange[0], max: budgetRange[1] }}
+          />
         </div>
 
         <div className="bg-card border border-card-border rounded-lg p-10 mb-8">

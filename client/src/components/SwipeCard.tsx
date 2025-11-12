@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Star, Heart, X, Wifi, Coffee, Shield, MapPin } from "lucide-react";
+import { Star, Heart, X, Wifi, Coffee, Shield, MapPin, MessageCircle, Trophy, ArrowRight, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import type { VoteSummary } from "@shared/schema";
 
 interface SwipeCardProps {
   id: string;
@@ -18,6 +19,13 @@ interface SwipeCardProps {
   category?: string;
   duration?: string;
   description?: string;
+  
+  // Collaboration props
+  votes?: VoteSummary;
+  comments?: number;
+  addedBy?: string;
+  showConsensus?: boolean;
+  onCommentClick?: () => void;
 }
 
 const featureIcons: Record<string, any> = {
@@ -40,6 +48,11 @@ export function SwipeCard({
   category,
   duration,
   description,
+  votes,
+  comments,
+  addedBy,
+  showConsensus = true,
+  onCommentClick,
 }: SwipeCardProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -111,6 +124,48 @@ export function SwipeCard({
       data-testid={`swipe-card-${id}`}
     >
       <div className="bg-card border border-card-border rounded-xl overflow-hidden h-full shadow-xl">
+        {/* Vote counts and consensus badge - positioned at top right */}
+        {votes && (
+          <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 items-end">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/95 backdrop-blur-sm border border-border shadow-lg">
+              <div className="flex items-center gap-1 text-sm">
+                <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
+                <span className="font-semibold">{votes.love}</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-1 text-sm">
+                <Minus className="w-3.5 h-3.5 text-blue-500" />
+                <span className="font-semibold">{votes.maybe}</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-1 text-sm">
+                <X className="w-3.5 h-3.5 text-gray-500" />
+                <span className="font-semibold">{votes.skip}</span>
+              </div>
+            </div>
+            
+            {comments !== undefined && comments > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCommentClick?.();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/95 backdrop-blur-sm border border-border shadow-lg text-sm hover:bg-primary/10 hover:border-primary transition-colors"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span className="font-semibold">{comments}</span>
+              </button>
+            )}
+            
+            {showConsensus && votes.consensusType && (
+              <Badge className="bg-primary/95 backdrop-blur-sm text-primary-foreground shadow-lg">
+                <Trophy className="w-3 h-3 mr-1" />
+                Group Favorite!
+              </Badge>
+            )}
+          </div>
+        )}
+
         <div className="aspect-[4/3] relative overflow-hidden">
           <img
             src={image}
@@ -118,14 +173,21 @@ export function SwipeCard({
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground" data-testid={`badge-price-${id}`}>
+          <Badge className="absolute top-4 left-4 bg-primary/95 backdrop-blur-sm text-primary-foreground shadow-lg text-base px-3 py-1" data-testid={`badge-price-${id}`}>
             ${price}
           </Badge>
         </div>
 
         <div className="p-6 space-y-4">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-2xl font-bold text-foreground flex-1" data-testid={`text-name-${id}`}>{name}</h3>
+            <div className="flex-1">
+              <h3 className="text-2xl font-bold text-foreground" data-testid={`text-name-${id}`}>{name}</h3>
+              {addedBy && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Added by {addedBy}
+                </p>
+              )}
+            </div>
             {category && type === "activity" && (
               <Badge variant="secondary" className="shrink-0" data-testid={`badge-category-${id}`}>
                 {category}
@@ -179,25 +241,7 @@ export function SwipeCard({
           )}
         </div>
 
-        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-4 px-6">
-          <Button
-            size="icon"
-            variant="destructive"
-            className="w-16 h-16 rounded-full shadow-lg"
-            onClick={() => handleSwipeButton("left")}
-            data-testid="button-swipe-left"
-          >
-            <X className="w-8 h-8" />
-          </Button>
-          <Button
-            size="icon"
-            className="w-16 h-16 rounded-full shadow-lg bg-primary hover:bg-primary/90"
-            onClick={() => handleSwipeButton("right")}
-            data-testid="button-swipe-right"
-          >
-            <Heart className="w-8 h-8" />
-          </Button>
-        </div>
+
       </div>
     </div>
   );

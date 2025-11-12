@@ -1,4 +1,4 @@
-import { Map, Bike, Calendar, FileText, Plane } from "lucide-react";
+import { Map, Bike, Calendar, FileText, Plane, MessageSquare } from "lucide-react";
 import { useLocation, Link } from "wouter";
 import {
   Sidebar,
@@ -26,6 +26,11 @@ const menuItems = [
     title: "Itinerary",
     url: "/itinerary-builder",
     icon: Calendar,
+  },
+  {
+    title: "AI Assistant",
+    url: "/chat-editor",
+    icon: MessageSquare,
   },
   {
     title: "Flights",
