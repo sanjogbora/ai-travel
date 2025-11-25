@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { Plane, Clock, DollarSign, Loader2 } from "lucide-react";
-import type { Flight } from "@shared/schema";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plane, Clock, DollarSign, Loader2, Hotel, Wifi, Coffee, Dumbbell, Star } from "lucide-react";
+import type { Flight, Hotel as HotelType } from "@shared/schema";
 
 type LayoverPreference = "direct" | "one-stop" | "any";
 
@@ -13,9 +14,15 @@ export default function Flights() {
   const [comfortSlider, setComfortSlider] = useState([50]);
   const [layoverPref, setLayoverPref] = useState<LayoverPreference>("any");
 
-  const { data: flights, isLoading } = useQuery<Flight[]>({
+  const { data: flights, isLoading: flightsLoading } = useQuery<Flight[]>({
     queryKey: ["/api/flights"],
   });
+
+  const { data: hotels, isLoading: hotelsLoading } = useQuery<HotelType[]>({
+    queryKey: ["/api/hotels"],
+  });
+
+  const isLoading = flightsLoading || hotelsLoading;
 
   const filteredFlights = (flights || [])
     .filter((flight) => {
@@ -27,7 +34,7 @@ export default function Flights() {
       const comfortWeight = comfortSlider[0] / 100;
       const costWeight = 1 - comfortWeight;
       
-      const comfortValue = flight.comfortScore ?? flight.comfort * 25 ?? 50;
+      const comfortValue = flight.comfortScore !== undefined ? flight.comfortScore : (flight.comfort * 25);
       const priceMax = Math.max(...(flights || []).map(f => f.price), 1000);
       const costValue = ((priceMax - flight.price) / priceMax) * 100;
       
@@ -60,15 +67,28 @@ export default function Flights() {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="font-serif text-4xl font-bold text-foreground mb-2" data-testid="text-heading">
-            Find Your Perfect Flight
+            Flights & Accommodations
           </h1>
           <p className="text-lg text-muted-foreground">
-            Contextual recommendations based on your itinerary
+            Book your travel and stay in one place
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <Card className="p-6 lg:col-span-1">
+        <Tabs defaultValue="flights" className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+            <TabsTrigger value="flights" data-testid="tab-flights">
+              <Plane className="w-4 h-4 mr-2" />
+              Flights
+            </TabsTrigger>
+            <TabsTrigger value="hotels" data-testid="tab-hotels">
+              <Hotel className="w-4 h-4 mr-2" />
+              Hotels
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="flights">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <Card className="p-6 lg:col-span-1">
             <h2 className="font-semibold text-lg mb-4">Your Preferences</h2>
             
             <div className="space-y-6">
@@ -146,9 +166,9 @@ export default function Flights() {
                       <p className="text-sm text-muted-foreground" data-testid={`text-route-${flight.id}`}>
                         {flight.from} → {flight.to}
                       </p>
-                      {flight.layoverDetails && (
+                      {flight.layoverDetails && flight.layoverDetails.length > 0 && (
                         <p className="text-xs text-muted-foreground mt-1">
-                          {flight.layoverDetails}
+                          {flight.layoverDetails.map(l => `${l.duration} in ${l.airport}`).join(', ')}
                         </p>
                       )}
                     </div>
@@ -201,6 +221,86 @@ export default function Flights() {
             )}
           </div>
         </div>
+          </TabsContent>
+
+          <TabsContent value="hotels">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {!hotels || hotels.length === 0 ? (
+                <Card className="p-12 text-center col-span-full">
+                  <p className="text-muted-foreground" data-testid="text-no-hotels">
+                    No hotels available. Please try again later.
+                  </p>
+                </Card>
+              ) : (
+                hotels.map((hotel) => (
+                  <Card key={hotel.id} className="p-6 flex flex-col" data-testid={`card-hotel-${hotel.id}`}>
+                    {hotel.image && (
+                      <div className="w-full h-48 rounded-lg overflow-hidden mb-4">
+                        <img
+                          src={hotel.image}
+                          alt={hotel.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-2" data-testid={`text-hotel-name-${hotel.id}`}>
+                        {hotel.name}
+                      </h3>
+                      
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${
+                                i < Math.floor(hotel.rating)
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm text-muted-foreground" data-testid={`text-hotel-rating-${hotel.id}`}>
+                          {hotel.rating} ({hotel.reviewCount} reviews)
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {hotel.features.slice(0, 4).map((feature, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {feature}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <div className="text-2xl font-bold" data-testid={`text-hotel-price-${hotel.id}`}>
+                            ${hotel.price}
+                          </div>
+                          <p className="text-xs text-muted-foreground">per night</p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-medium">Safety: {hotel.safety}/5</div>
+                          <div className="text-sm font-medium">Comfort: {hotel.comfort}/5</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button 
+                      className="w-full"
+                      data-testid={`button-select-hotel-${hotel.id}`}
+                    >
+                      Select Hotel
+                    </Button>
+                  </Card>
+                ))
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

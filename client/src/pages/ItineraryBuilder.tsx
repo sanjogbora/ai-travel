@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ItineraryActivityCard } from "@/components/ItineraryActivityCard";
 import { PackingList } from "@/components/PackingList";
 import { Clock, MapPin, DollarSign, ArrowRight, Plus, GripVertical, AlertCircle, Users, Home, Undo, X, UtensilsCrossed, Camera, Landmark, Bike, ShoppingBag, Plane, Hotel, Calendar, Package } from "lucide-react";
@@ -464,13 +465,26 @@ export default function ItineraryBuilder() {
                           <h4 className="text-sm font-semibold text-foreground line-clamp-1" data-testid={`text-booking-name-${booking.id}`}>
                             {booking.name}
                           </h4>
-                          <Badge
-                            variant={priorityColors[booking.priority]}
-                            className="shrink-0 text-xs"
-                            data-testid={`badge-priority-${booking.id}`}
-                          >
-                            {booking.priority}
-                          </Badge>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge
+                                  variant={priorityColors[booking.priority]}
+                                  className="shrink-0 text-xs cursor-help"
+                                  data-testid={`badge-priority-${booking.id}`}
+                                >
+                                  {booking.priority}
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">
+                                  {booking.priority === 'high' && 'Book immediately - Limited availability or high demand'}
+                                  {booking.priority === 'medium' && 'Book soon - Recommended to secure your spot'}
+                                  {booking.priority === 'low' && 'Book anytime - Flexible booking window'}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-muted-foreground" data-testid={`text-booking-window-${booking.id}`}>

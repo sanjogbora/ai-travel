@@ -142,7 +142,7 @@ export default function ChatEditor() {
         </div>
       </div>
 
-      <div className="border-t border-border bg-background">
+      <div className="border-t border-border bg-background sticky bottom-0 z-50">
         <div className="max-w-3xl mx-auto px-6 py-4">
           <div className="flex gap-3 mb-3">
             <Input

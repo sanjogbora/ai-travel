@@ -321,16 +321,20 @@ const comments: Comment[] = [
   {
     id: "comment-1",
     tripId: "trip-1",
-    activityId: "act-1",
+    targetType: "activity",
+    targetId: "act-1",
     memberId: "member-2",
+    memberName: "Sarah Chen",
     content: "This looks amazing! We should definitely go early to avoid crowds.",
     createdAt: new Date(Date.now() - 3600000).toISOString(),
   },
   {
     id: "comment-2",
     tripId: "trip-1",
-    activityId: "act-1",
+    targetType: "activity",
+    targetId: "act-1",
     memberId: "member-1",
+    memberName: "You",
     content: "Great idea! I'll book tickets for 9am opening.",
     createdAt: new Date(Date.now() - 1800000).toISOString(),
     parentId: "comment-1",
@@ -338,8 +342,10 @@ const comments: Comment[] = [
   {
     id: "comment-3",
     tripId: "trip-1",
-    activityId: "act-2",
+    targetType: "activity",
+    targetId: "act-2",
     memberId: "member-3",
+    memberName: "Mike Johnson",
     content: "Can we extend this? 2 hours might not be enough to see everything.",
     createdAt: new Date(Date.now() - 7200000).toISOString(),
   },
@@ -356,7 +362,10 @@ export interface IStorage {
   getActivity(id: string): Promise<Activity | undefined>;
   getTripMembers(tripId?: string): Promise<TripMember[]>;
   getVotes(tripId?: string, activityId?: string): Promise<Vote[]>;
+  createVote(vote: Omit<Vote, 'id' | 'createdAt'>): Promise<Vote>;
+  getVoteSummary(tripId: string, activityId: string): Promise<{ love: number; maybe: number; skip: number; userVote?: string; consensusType?: string }>;
   getComments(tripId?: string, activityId?: string): Promise<Comment[]>;
+  createComment(comment: Omit<Comment, 'id' | 'createdAt'>): Promise<Comment>;
 }
 
 export class MemStorage implements IStorage {
@@ -418,15 +427,73 @@ export class MemStorage implements IStorage {
     return filtered;
   }
 
-  async getComments(tripId?: string, activityId?: string): Promise<Comment[]> {
+  async getComments(tripId?: string, targetId?: string): Promise<Comment[]> {
     let filtered = comments;
     if (tripId) {
       filtered = filtered.filter(c => c.tripId === tripId);
     }
-    if (activityId) {
-      filtered = filtered.filter(c => c.activityId === activityId);
+    if (targetId) {
+      filtered = filtered.filter(c => c.targetId === targetId);
     }
     return filtered;
+  }
+
+  async createVote(voteData: Omit<Vote, 'id' | 'createdAt'>): Promise<Vote> {
+    // Check if vote already exists for this member and activity
+    const existingVoteIndex = votes.findIndex(
+      v => v.tripId === voteData.tripId && 
+           v.activityId === voteData.activityId && 
+           v.memberId === voteData.memberId
+    );
+
+    const newVote: Vote = {
+      id: `vote-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ...voteData,
+      createdAt: new Date().toISOString(),
+    };
+
+    if (existingVoteIndex >= 0) {
+      // Update existing vote
+      votes[existingVoteIndex] = newVote;
+    } else {
+      // Add new vote
+      votes.push(newVote);
+    }
+
+    return newVote;
+  }
+
+  async getVoteSummary(tripId: string, activityId: string): Promise<{ love: number; maybe: number; skip: number; userVote?: string; consensusType?: string }> {
+    const activityVotes = votes.filter(v => v.tripId === tripId && v.activityId === activityId);
+    
+    const summary = {
+      love: activityVotes.filter(v => v.voteType === 'love').length,
+      maybe: activityVotes.filter(v => v.voteType === 'maybe').length,
+      skip: activityVotes.filter(v => v.voteType === 'skip').length,
+    };
+
+    // Determine consensus (75%+ of votes)
+    const totalVotes = activityVotes.length;
+    if (totalVotes > 0) {
+      if (summary.love / totalVotes >= 0.75) {
+        return { ...summary, consensusType: 'love' };
+      } else if (summary.skip / totalVotes >= 0.75) {
+        return { ...summary, consensusType: 'skip' };
+      }
+    }
+
+    return summary;
+  }
+
+  async createComment(commentData: Omit<Comment, 'id' | 'createdAt'>): Promise<Comment> {
+    const newComment: Comment = {
+      id: `comment-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ...commentData,
+      createdAt: new Date().toISOString(),
+    };
+
+    comments.push(newComment);
+    return newComment;
   }
 }
 

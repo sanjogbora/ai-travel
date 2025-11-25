@@ -49,16 +49,10 @@ export default function BudgetSelection() {
           </p>
         </div>
 
-        {/* AI Budget Insight */}
-        <div className="mb-8">
-          <AIBudgetInsight
-            destination="Paris"
-            memberCount={4}
-            budgetRange={{ min: budgetRange[0], max: budgetRange[1] }}
-          />
-        </div>
-
-        <div className="bg-card border border-card-border rounded-lg p-10 mb-8">
+        {/* Horizontal Layout: Budget Controls + AI Insights */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Budget Controls */}
+          <div className="bg-card border border-card-border rounded-lg p-10">
           <div className="flex items-center justify-center gap-4 mb-8">
             <DollarSign className="w-8 h-8 text-primary" />
             <div className="text-center">
@@ -95,6 +89,16 @@ export default function BudgetSelection() {
                 {preset.label}
               </Badge>
             ))}
+          </div>
+          </div>
+
+          {/* AI Budget Insight */}
+          <div className="flex items-center">
+            <AIBudgetInsight
+              destination="Paris"
+              memberCount={4}
+              budgetRange={{ min: budgetRange[0], max: budgetRange[1] }}
+            />
           </div>
         </div>
 

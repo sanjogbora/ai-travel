@@ -33,7 +33,7 @@ const menuItems = [
     icon: MessageSquare,
   },
   {
-    title: "Flights",
+    title: "Bookings",
     url: "/flights",
     icon: Plane,
   },
