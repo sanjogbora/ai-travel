@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plane, Clock, DollarSign, Loader2, Hotel, Wifi, Coffee, Dumbbell, Star } from "lucide-react";
+import { Plane, Clock, DollarSign, Loader2, Hotel, Star } from "lucide-react";
 import type { Flight, Hotel as HotelType } from "@shared/schema";
+import { mockFlights, mockHotels } from "@/lib/mockData";
 
 type LayoverPreference = "direct" | "one-stop" | "any";
 
@@ -14,15 +14,10 @@ export default function Flights() {
   const [comfortSlider, setComfortSlider] = useState([50]);
   const [layoverPref, setLayoverPref] = useState<LayoverPreference>("any");
 
-  const { data: flights, isLoading: flightsLoading } = useQuery<Flight[]>({
-    queryKey: ["/api/flights"],
-  });
-
-  const { data: hotels, isLoading: hotelsLoading } = useQuery<HotelType[]>({
-    queryKey: ["/api/hotels"],
-  });
-
-  const isLoading = flightsLoading || hotelsLoading;
+  // Use mock data instead of API
+  const flights = mockFlights;
+  const hotels = mockHotels;
+  const isLoading = false;
 
   const filteredFlights = (flights || [])
     .filter((flight) => {

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { SwipeCard } from "@/components/SwipeCard";
 import { VoteReactionsContainer } from "@/components/VoteReaction";
@@ -8,6 +7,7 @@ import { CommentThread } from "@/components/CommentThread";
 import { useVoting } from "@/hooks/use-voting";
 import { ArrowRight, Loader2 } from "lucide-react";
 import type { Activity, VoteType } from "@shared/schema";
+import { mockActivities } from "@/lib/mockData";
 
 interface VoteReaction {
   id: string;
@@ -33,9 +33,9 @@ export default function TravelTinder() {
     enabled: true,
   });
 
-  const { data: activities, isLoading } = useQuery<Activity[]>({
-    queryKey: ["/api/activities"],
-  });
+  // Use mock data instead of API
+  const activities = mockActivities;
+  const isLoading = false;
 
   // Fetch vote summaries for current activity
   useEffect(() => {
